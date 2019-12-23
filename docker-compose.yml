@@ -1,0 +1,13 @@
+---
+smart-sensor:
+  image: cosdev01.snapsinc.com:5000/collabornet/java
+  container_name: smart-sensor
+  ports:
+    - "9004:9004"
+  expose:
+    - "9004"
+  external_links:
+    - fhir-server
+  volumes_from:
+    - smart-sensor-data
+  restart: on-failure:1

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv='X-UA-Compatible' content='IE=edge' />
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<title>Patient/Practitioner Context Display</title>
+
+<link rel='stylesheet' type='text/css'
+	href='./src/css/example-smart-app.css'>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!--
+      Temporarily disable cerner-smart-embeddable-lib
+    -->
+<link rel='stylesheet' type='text/css'
+	href='./lib/css/cerner-smart-embeddable-lib-1.0.0.min.css'>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+	<input id="redirectUrl" name="redirectUrl" th:value="${redirectUrl}">
+
+	<div id='errors'></div>
+	<div id='holder'>
+		<h2>Smart Context</h2>
+		<table>
+			<tr>
+				<th>Tenant ID:</th>
+				<td id='smartTenantId'></td>
+			</tr>
+			<tr>
+				<th>Patient ID:</th>
+				<td id='smartPatientId'></td>
+			</tr>
+			<tr>
+				<th>User ID:</th>
+				<td id='smartUserId'></td>
+			</tr>
+		</table>
+		<h2>Patient Context</h2>
+		<table>
+			<tr>
+				<th>FHIR ID:</th>
+				<td id='patientId'></td>
+			</tr>
+			<tr>
+				<th>MRN:</th>
+				<td id='mrn'></td>
+			</tr>
+			<tr>
+				<td id='patientText'><span th:text="${patientText}"></span></td>
+			</tr>
+		</table>
+		<h2>Practitioner Context</h2>
+		<table>
+			<tr>
+				<th>FHIR ID:</th>
+				<td id='practitionerId'></td>
+			</tr>
+			<tr>
+				<th>NPI:</th>
+				<td id='npi'></td>
+			</tr>
+			<tr>
+				<td id='practitionerText'><span th:text="${practitionerText}"></span></td>
+			</tr>
+		</table>
+		<h2>Hive Context</h2>
+		<table>
+			<tr>
+				<th>Status:</th>
+				<td id='hiveStatus'><span th:text="${hiveStatus}"></span></td>
+			</tr>
+		</table>
+	</div>
+	<!-- Required JS files to enable this page to embed within an MPage -->
+	<!--
+      Temporarily disable cerner-smart-embeddable-lib
+    -->
+	<script
+		src='https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js'></script>
+	<script src='./lib/js/cerner-smart-embeddable-lib-1.0.0.min.js'></script>
+
+	<!-- Application-level javascript-->
+	<script src='./src/js/example-smart-app.js'></script>
+
+	<!-- FHIR Client JS Library -->
+	<script src='./lib/js/fhir-client-v0.1.12.js'></script>
+
+	<!-- Prevent session bleed caused by single threaded embedded browser and sessionStorage API -->
+	<!-- https://github.com/cerner/fhir-client-cerner-additions -->
+	<script src='./lib/js/fhir-client-cerner-additions-1.0.0.js'></script>
+	<script>
+		var sensedContextUrl = "/smart/cerner/v1/sensedContext/";
+		console.log('Mirth Cerner Context channel sensedContextUrl: ' + sensedContextUrl);
+
+// 		var context = mapSmartContext(getSmartContextMock());
+// 		context.patient = mapPatientContext(getPatientMock());
+// 		context.practitioner = mapPractitionerContext(getPractitionerMock());
+
+// 		drawVisualization(context);
+		
+// 		context.patient = JSON.stringify(context.patient);
+// 		context.practitioner = JSON.stringify(context.practitioner);
+// 		context.smartContext = JSON.stringify(context.smart);
+		
+// 		console.log('cerner context: ' + JSON.stringify(context));
+
+		extractData().then(
+			//Display Patient Demographics and Observations if extractData was success
+			function(context) {
+				drawVisualization(context);
+
+		 		context.patient = JSON.stringify(context.patient);
+		 		context.practitioner = JSON.stringify(context.practitioner);
+		 		context.smartContext = JSON.stringify(context.smart);
+				
+		 		console.log('cerner context: ' + JSON.stringify(context));
+
+				postSensedContext(sensedContextUrl, context)
+					.done(function(data) {
+						console.log('Mirth Cerner Context channel data: ' + JSON.stringify(data));
+						$('#hiveStatus').html(data.hiveStatus);
+					})
+					.fail(function(error) {
+						error = JSON.stringify(error);
+						console.log('Mirth Cerner Context channel error: ' + error);
+					});
+			},
+// 			//Display 'Failed to call FHIR Service' if extractData failed
+			function() {
+				$('#errors').html('<p> Failed to call FHIR Service </p>');
+			});
+	</script>
+</body>
+</html>

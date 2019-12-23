@@ -1,0 +1,41 @@
+server:
+  port: '${SERVER_PORT:9004}'
+  servlet:
+    context-path: '${SERVER_CONTEXTPATH:/}'
+info:
+  build:
+    artifactId: "@project.artifactId@"
+    name: "@project.name@"
+    description: "@project.description@"
+    version: "@project.version@.@build.number@"
+    tag: "@build.tag@"
+    scmRevision: "@scm.revision@"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+hapi:
+  fhir:
+    version: '${FHIR_VERSION:DSTU3}'
+    server:
+      url: '${FHIR_SERVER_URL:http://fhir-server:9001/fhir}'
+app:
+  oauth2:
+    clientId: '${OAUTH2_CLIENTID:47c085b8-75a8-4ab8-ada4-c3bfcfee1efb}'
+    scope: '${OAUTH2_SCOPE:patient/Patient.read patient/Observation.read user/Practitioner.read launch online_access openid profile}'
+  redirectUrl: '${REDIRECT_URL:http://10.250.10.236:1080/cernercontext/}'
+  ConnectTimeout: 10000
+  ReadTimeout: 600000
+logging:
+  level:
+    ca.uhn.fhir.jaxrs: error

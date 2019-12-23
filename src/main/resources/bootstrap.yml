@@ -1,0 +1,7 @@
+info:
+  description: Smart Sensor
+encrypt:
+  failOnError: false
+spring:
+  application:
+    name: ${SERVICE_NAME:smart-sensor}
